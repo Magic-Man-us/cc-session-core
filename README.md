@@ -1,5 +1,12 @@
 # cc-session-core
 
+[![PyPI](https://img.shields.io/pypi/v/cc-session-core.svg)](https://pypi.org/project/cc-session-core/)
+[![Python versions](https://img.shields.io/pypi/pyversions/cc-session-core.svg)](https://pypi.org/project/cc-session-core/)
+[![CI](https://github.com/Magic-Man-us/cc-session-core/actions/workflows/publish.yml/badge.svg)](https://github.com/Magic-Man-us/cc-session-core/actions/workflows/publish.yml)
+[![codecov](https://codecov.io/gh/Magic-Man-us/cc-session-core/branch/main/graph/badge.svg)](https://codecov.io/gh/Magic-Man-us/cc-session-core)
+[![Dependabot](https://img.shields.io/badge/Dependabot-enabled-brightgreen.svg)](https://github.com/Magic-Man-us/cc-session-core/blob/main/.github/dependabot.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://github.com/Magic-Man-us/cc-session-core/blob/main/LICENSE)
+
 Typed, lossless parser for Claude Code session transcripts (`~/.claude/projects/**/*.jsonl`), plus a session-analysis layer (timeline, tool-call pairing, cost) and a context-map tool built on it.
 
 Each transcript line is validated by a Pydantic `TypeAdapter` over a discriminated union keyed on the record `type`. Three layers, each a discriminated union: top-level records, `message.content` blocks, and attachments. `usage`, `message`, and the built-in tools' inputs/results are fully typed; `cc_session_core.parsing.tools` dispatches per-tool models by tool name, with a raw fallback for MCP/unknown tools.

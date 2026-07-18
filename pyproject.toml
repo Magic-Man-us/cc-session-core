@@ -35,7 +35,7 @@ cc-session = "cc_session_core.interface.cli:main"
 cc-session-mcp = "cc_session_core.interface.mcp:main"
 
 [dependency-groups]
-dev = ["pytest>=8", "ruff>=0.6", "pyright>=1.1.390", "mcp>=1.2"]
+dev = ["pytest>=8", "pytest-cov>=6", "ruff>=0.6", "pyright>=1.1.390", "mcp>=1.2"]
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/cc_session_core"]
@@ -46,6 +46,12 @@ testpaths = ["tests"]
 markers = [
     "corpus: runs against a real transcript corpus (set CC_SESSION_CORPUS); slow",
 ]
+
+[tool.coverage.run]
+source = ["cc_session_core"]
+
+[tool.coverage.report]
+exclude_lines = ["pragma: no cover", "if TYPE_CHECKING:"]
 
 [tool.pyright]
 include = ["src", "tests"]

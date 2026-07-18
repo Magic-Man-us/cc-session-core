@@ -12,6 +12,9 @@ uv.lock
 map.json
 map.csv
 .devws/
+junit.xml
+coverage.xml
+.coverage
 
 # >>> AgentForge managed gitignore (do not edit between markers) >>>
 **/.agentforge/audit.jsonl
