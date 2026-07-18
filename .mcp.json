@@ -1,0 +1,7 @@
+{
+  "mcpServers": {
+    "cc-session": {
+      "command": "${CLAUDE_PLUGIN_ROOT}/bin/cc-session-mcp"
+    }
+  }
+}

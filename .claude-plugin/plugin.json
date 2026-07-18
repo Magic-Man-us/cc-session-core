@@ -1,0 +1,6 @@
+{
+  "name": "cc-session-core",
+  "version": "0.1.0",
+  "description": "Typed Claude Code session parser + MCP tools (list / summarize / tool_calls / export / audit sessions).",
+  "author": { "name": "Magic-Man" }
+}
