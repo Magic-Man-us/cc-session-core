@@ -1,0 +1,20 @@
+#!/usr/bin/env -S uv run --script
+# /// script
+# requires-python = ">=3.12"
+# dependencies = ["pydantic>=2.11"]
+# ///
+"""On-PATH entry for the cc-session-core plugin's `bin/`.
+
+Loads ``cc_session_core`` from the plugin's bundled ``src/`` (resolved relative to this
+file, so it works without an install and without CLAUDE_PLUGIN_ROOT). Args pass
+through to the ``cc-session`` CLI.
+"""
+import sys
+from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "src"))
+
+from cc_session_core.interface.cli import main  # noqa: E402
+
+if __name__ == "__main__":
+    raise SystemExit(main())
