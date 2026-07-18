@@ -27,7 +27,7 @@ Repository = "https://github.com/Magic-Man-us/cc-session-core"
 Issues = "https://github.com/Magic-Man-us/cc-session-core/issues"
 
 [project.optional-dependencies]
-mcp = ["mcp>=1.2"]
+mcp = ["mcp>=1.28.1"]
 
 [project.scripts]
 cc-session-map = "cc_session_core.report.contextmap:main"
@@ -35,7 +35,7 @@ cc-session = "cc_session_core.interface.cli:main"
 cc-session-mcp = "cc_session_core.interface.mcp:main"
 
 [dependency-groups]
-dev = ["pytest>=8", "pytest-cov>=6", "ruff>=0.6", "pyright>=1.1.390", "mcp>=1.2"]
+dev = ["pytest>=8", "pytest-cov>=6", "ruff>=0.6", "pyright>=1.1.390", "mcp>=1.28.1"]
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/cc_session_core"]
