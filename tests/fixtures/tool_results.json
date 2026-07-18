@@ -1,0 +1,274 @@
+{
+  "Bash": {
+    "stdout": "redacted",
+    "stderr": "redacted",
+    "interrupted": false,
+    "isImage": false,
+    "noOutputExpected": false
+  },
+  "AskUserQuestion": {
+    "questions": [
+      {
+        "question": "redacted",
+        "header": "redacted",
+        "options": [
+          {
+            "label": "redacted",
+            "description": "redacted"
+          },
+          {
+            "label": "redacted",
+            "description": "redacted"
+          },
+          {
+            "label": "redacted",
+            "description": "redacted"
+          }
+        ],
+        "multiSelect": false
+      },
+      {
+        "question": "redacted",
+        "header": "redacted",
+        "options": [
+          {
+            "label": "redacted",
+            "description": "redacted"
+          },
+          {
+            "label": "redacted",
+            "description": "redacted"
+          },
+          {
+            "label": "redacted",
+            "description": "redacted"
+          }
+        ],
+        "multiSelect": false
+      }
+    ],
+    "answers": {
+      "redacted": "redacted"
+    },
+    "annotations": {}
+  },
+  "Write": {
+    "type": "create",
+    "filePath": "redacted",
+    "content": "redacted",
+    "structuredPatch": [],
+    "originalFile": null,
+    "userModified": false
+  },
+  "Edit": {
+    "filePath": "redacted",
+    "oldString": "redacted",
+    "newString": "redacted",
+    "originalFile": "redacted",
+    "structuredPatch": [
+      {
+        "oldStart": 10,
+        "oldLines": 17,
+        "newStart": 10,
+        "newLines": 30,
+        "lines": [
+          "redacted",
+          "redacted",
+          "redacted",
+          "redacted",
+          "redacted",
+          "redacted",
+          "redacted",
+          "redacted",
+          "redacted",
+          "redacted",
+          "redacted",
+          "redacted",
+          "redacted",
+          "redacted",
+          "redacted",
+          "redacted",
+          "redacted",
+          "redacted",
+          "redacted",
+          "redacted",
+          "redacted",
+          "redacted",
+          "redacted",
+          "redacted",
+          "redacted",
+          "redacted",
+          "redacted",
+          "redacted",
+          "redacted",
+          "redacted",
+          "redacted",
+          "redacted",
+          "redacted",
+          "redacted"
+        ]
+      }
+    ],
+    "userModified": false,
+    "replaceAll": false
+  },
+  "ToolSearch": {
+    "matches": [
+      "redacted",
+      "redacted",
+      "redacted",
+      "redacted"
+    ],
+    "query": "redacted",
+    "total_deferred_tools": 104
+  },
+  "Read": {
+    "type": "image",
+    "file": {
+      "base64": "redacted",
+      "type": "image/png",
+      "originalSize": 100442,
+      "dimensions": {
+        "originalWidth": 780,
+        "originalHeight": 493,
+        "displayWidth": 780,
+        "displayHeight": 493
+      }
+    }
+  },
+  "Agent": {
+    "status": "completed",
+    "prompt": "redacted",
+    "agentId": "redacted",
+    "agentType": "redacted",
+    "content": [
+      {
+        "type": "text",
+        "text": "redacted"
+      }
+    ],
+    "totalDurationMs": 188931,
+    "totalTokens": 24397,
+    "totalToolUseCount": 9,
+    "usage": {
+      "input_tokens": 5,
+      "cache_creation_input_tokens": 704,
+      "cache_read_input_tokens": 23118,
+      "output_tokens": 570,
+      "server_tool_use": {
+        "web_search_requests": 0,
+        "web_fetch_requests": 0
+      },
+      "service_tier": "standard",
+      "cache_creation": {
+        "ephemeral_1h_input_tokens": 0,
+        "ephemeral_5m_input_tokens": 704
+      },
+      "inference_geo": "not_available",
+      "iterations": [
+        {
+          "input_tokens": 5,
+          "output_tokens": 570,
+          "cache_read_input_tokens": 23118,
+          "cache_creation_input_tokens": 704,
+          "cache_creation": {
+            "ephemeral_5m_input_tokens": 704,
+            "ephemeral_1h_input_tokens": 0
+          },
+          "type": "message"
+        }
+      ],
+      "speed": "standard"
+    },
+    "toolStats": {
+      "readCount": 2,
+      "searchCount": 0,
+      "bashCount": 0,
+      "editFileCount": 0,
+      "linesAdded": 0,
+      "linesRemoved": 0,
+      "otherToolCount": 7
+    }
+  },
+  "TaskList": {
+    "tasks": []
+  },
+  "TaskCreate": {
+    "task": {
+      "id": "1",
+      "subject": "redacted"
+    }
+  },
+  "TaskUpdate": {
+    "success": true,
+    "taskId": "2",
+    "updatedFields": [
+      "redacted"
+    ],
+    "statusChange": {
+      "from": "redacted",
+      "to": "redacted"
+    }
+  },
+  "WebFetch": {
+    "bytes": 12474,
+    "code": 200,
+    "codeText": "redacted",
+    "result": "redacted",
+    "durationMs": 304,
+    "url": "redacted"
+  },
+  "WebSearch": {
+    "query": "redacted",
+    "results": [
+      {
+        "tool_use_id": "srvtoolu_01TVnfTu5iULEKyd8kXFPYhU",
+        "content": [
+          {
+            "title": "redacted",
+            "url": "redacted"
+          },
+          {
+            "title": "redacted",
+            "url": "redacted"
+          },
+          {
+            "title": "redacted",
+            "url": "redacted"
+          },
+          {
+            "title": "redacted",
+            "url": "redacted"
+          },
+          {
+            "title": "redacted",
+            "url": "redacted"
+          },
+          {
+            "title": "redacted",
+            "url": "redacted"
+          },
+          {
+            "title": "redacted",
+            "url": "redacted"
+          },
+          {
+            "title": "redacted",
+            "url": "redacted"
+          },
+          {
+            "title": "redacted",
+            "url": "redacted"
+          },
+          {
+            "title": "redacted",
+            "url": "redacted"
+          }
+        ]
+      },
+      "redacted"
+    ],
+    "durationSeconds": 8.079616871997715,
+    "searchCount": 1
+  }
+}

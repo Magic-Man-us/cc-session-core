@@ -1,0 +1,38 @@
+{
+  "Bash": {
+    "command": "redacted",
+    "description": "redacted"
+  },
+  "Write": {
+    "file_path": "redacted",
+    "content": "redacted"
+  },
+  "Edit": {
+    "replace_all": false,
+    "file_path": "redacted",
+    "old_string": "redacted",
+    "new_string": "redacted"
+  },
+  "ToolSearch": {
+    "query": "redacted",
+    "max_results": 5
+  },
+  "Read": {
+    "file_path": "redacted"
+  },
+  "Agent": {
+    "description": "redacted",
+    "subagent_type": "redacted",
+    "prompt": "redacted"
+  },
+  "WebFetch": {
+    "url": "redacted",
+    "prompt": "redacted"
+  },
+  "WebSearch": {
+    "query": "redacted"
+  },
+  "Glob": {
+    "pattern": "redacted"
+  }
+}
