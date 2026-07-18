@@ -13,6 +13,9 @@ permissions:
 
 jobs:
   secrets-scan:
+    # gitleaks-action doesn't support the `release` event; the commit was already scanned
+    # when it landed on main via push, so skip re-scanning it here.
+    if: github.event_name != 'release'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
