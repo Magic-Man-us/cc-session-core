@@ -81,6 +81,13 @@ jobs:
 
   package:
     needs: [secrets-scan, lint, test]
+    # secrets-scan is skipped (not successful) on release events by design, so the
+    # default needs-check would cascade-skip package/publish on every release.
+    if: |
+      always() &&
+      needs.lint.result == 'success' &&
+      needs.test.result == 'success' &&
+      needs.secrets-scan.result != 'failure'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
