@@ -105,7 +105,13 @@ jobs:
 
   publish:
     needs: package
-    if: github.event_name == 'release'
+    # implicit success() also checks package's transitive ancestors (secrets-scan,
+    # which is skipped-by-design on release events), not just this direct need --
+    # so it must be gated explicitly on package's own result instead.
+    if: |
+      always() &&
+      needs.package.result == 'success' &&
+      github.event_name == 'release'
     runs-on: ubuntu-latest
     environment: pypi
     permissions:
