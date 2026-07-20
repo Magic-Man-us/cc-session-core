@@ -441,6 +441,12 @@ class AutoMode(CamelModel):
     type: Literal["auto_mode"]
 
 
+class ReadTruncationNotice(CamelModel):
+    type: Literal["read_truncation_notice"]
+    banner: t.TruncationBanner
+    tool_use_id: t.ToolUseId = Field(alias="toolUseID")
+
+
 class UnknownAttachment(CamelModel):
     """Any attachment ``type`` not modeled above; full payload kept via extra."""
 
@@ -481,7 +487,8 @@ _KnownAttachment = Annotated[
     | TaskStatus
     | WorkflowKeywordRequest
     | TotalTokensReminder
-    | AutoMode,
+    | AutoMode
+    | ReadTruncationNotice,
     Field(discriminator="type"),
 ]
 
@@ -521,6 +528,7 @@ _ATTACHMENT_TAGS = frozenset(
         "workflow_keyword_request",
         "total_tokens_reminder",
         "auto_mode",
+        "read_truncation_notice",
     }
 )
 
@@ -558,6 +566,7 @@ class ConvBase(CamelModel):
 class AssistantRecord(ConvBase):
     type: Literal["assistant"]
     message: AssistantMessage
+    effort: t.Effort | None = None
     request_id: t.RequestId | None = None
     attribution_agent: t.AttributionRef | None = None
     attribution_mcp_server: t.AttributionRef | None = None
@@ -572,6 +581,7 @@ class AssistantRecord(ConvBase):
 class UserRecord(ConvBase):
     type: Literal["user"]
     message: UserMessage
+    classifier_meta_lines: t.ClassifierMetaLines | None = None
     tool_use_result: JsonValue | None = None
     image_paste_ids: list[t.ImagePasteId] | None = None
     interrupted_message_id: t.MessageId | None = None
@@ -647,6 +657,7 @@ class SystemRecord(ConvBase):
     compact_metadata: CompactMetadata | None = None
     error: SystemError | None = None
     has_output: bool | None = None
+    hook_additional_context: list[JsonValue] | None = None
     hook_count: t.Count | None = None
     hook_errors: list[JsonValue] | None = None
     hook_infos: list[JsonValue] | None = None
@@ -701,6 +712,15 @@ class FileHistorySnapshotRecord(CamelModel):
     message_id: t.MessageId
     is_snapshot_update: bool
     snapshot: JsonValue
+
+
+class FileHistoryDeltaRecord(CamelModel):
+    type: Literal["file-history-delta"]
+    message_id: t.MessageId
+    snapshot_message_id: t.MessageId
+    tracking_path: t.FilePath
+    backup: JsonValue
+    timestamp: t.Timestamp
 
 
 class QueueOperationRecord(CamelModel):
@@ -767,6 +787,7 @@ _KnownRecord = Annotated[
     | AiTitleRecord
     | PermissionModeRecord
     | FileHistorySnapshotRecord
+    | FileHistoryDeltaRecord
     | QueueOperationRecord
     | AgentNameRecord
     | PrLinkRecord
@@ -788,6 +809,7 @@ _RECORD_TAGS = frozenset(
         "ai-title",
         "permission-mode",
         "file-history-snapshot",
+        "file-history-delta",
         "queue-operation",
         "agent-name",
         "pr-link",
