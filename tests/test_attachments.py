@@ -20,7 +20,7 @@ def test_attachment_discriminates(line: str) -> None:
 
 def test_all_attachment_kinds_present() -> None:
     kinds = {attachment_type(line) for line in LINES}
-    assert len(kinds) == 34
+    assert len(kinds) == 35
     for required in (
         "hook_success",
         "task_reminder",
@@ -28,5 +28,6 @@ def test_all_attachment_kinds_present() -> None:
         "hook_system_message",
         "total_tokens_reminder",
         "auto_mode",
+        "read_truncation_notice",
     ):
         assert required in kinds

@@ -9,7 +9,13 @@ from conftest import record_lines, record_type
 from pydantic import BaseModel
 
 from cc_session_core import RECORD_ADAPTER, parse_line
-from cc_session_core.models import AssistantRecord, UnknownBlock, UnknownRecord, UserRecord
+from cc_session_core.models import (
+    AssistantRecord,
+    SystemRecord,
+    UnknownBlock,
+    UnknownRecord,
+    UserRecord,
+)
 
 LINES = record_lines()
 
@@ -29,7 +35,7 @@ def test_record_round_trips(line: str) -> None:
     assert again.type == rec.type
 
 
-def test_all_sixteen_kinds_present() -> None:
+def test_all_seventeen_kinds_present() -> None:
     kinds = {record_type(line) for line in LINES}
     assert kinds == {
         "assistant",
@@ -41,6 +47,7 @@ def test_all_sixteen_kinds_present() -> None:
         "ai-title",
         "permission-mode",
         "file-history-snapshot",
+        "file-history-delta",
         "queue-operation",
         "agent-name",
         "pr-link",
@@ -49,6 +56,28 @@ def test_all_sixteen_kinds_present() -> None:
         "worktree-state",
         "agent-setting",
     }
+
+
+def test_new_envelope_fields_are_typed() -> None:
+    """The 2026-07-era envelope fields parse into typed attributes, not model_extra."""
+    obj = json.loads(next(line for line in LINES if record_type(line) == "assistant"))
+    obj["effort"] = "xhigh"
+    a = parse_line(json.dumps(obj))
+    assert isinstance(a, AssistantRecord)
+    assert a.effort == "xhigh"
+    assert not a.model_extra
+    obj = json.loads(next(line for line in LINES if record_type(line) == "user"))
+    obj["classifierMetaLines"] = "meta"
+    u = parse_line(json.dumps(obj))
+    assert isinstance(u, UserRecord)
+    assert u.classifier_meta_lines == "meta"
+    assert not u.model_extra
+    obj = json.loads(next(line for line in LINES if record_type(line) == "system"))
+    obj["hookAdditionalContext"] = []
+    s = parse_line(json.dumps(obj))
+    assert isinstance(s, SystemRecord)
+    assert s.hook_additional_context == []
+    assert not s.model_extra
 
 
 def test_unknown_record_type_falls_back_losslessly() -> None:

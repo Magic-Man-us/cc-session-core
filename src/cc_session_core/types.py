@@ -57,6 +57,9 @@ QueuePriority = Annotated[str, Field(title="Queue priority")]
 ModelId = Annotated[str, Field(title="Model ID", description="Claude model id.")]
 ServiceTier = Annotated[str, Field(title="Service tier", description="Inference service tier.")]
 Speed = Annotated[str, Field(title="Speed", description="standard | fast.")]
+Effort = Annotated[
+    str, Field(title="Reasoning effort", description="Requested effort, e.g. xhigh.")
+]
 InferenceGeo = Annotated[str, Field(title="Inference geo", description="Region inference ran in.")]
 StopReason = Annotated[str, Field(title="Stop reason", description="Why generation stopped.")]
 StopSequence = Annotated[str, Field(title="Stop sequence", description="Matched stop sequence.")]
@@ -105,6 +108,10 @@ ErrorCode = Annotated[str, Field(title="Error code")]
 FormattedError = Annotated[str, Field(title="Formatted error text")]
 PromptText = Annotated[str, Field(title="Prompt text")]
 ContentText = Annotated[str, Field(title="Content text")]
+ClassifierMetaLines = Annotated[str, Field(title="Classifier meta lines")]
+TruncationBanner = Annotated[
+    str, Field(title="Truncation banner", description="Notice that a Read result was truncated.")
+]
 ShellOutput = Annotated[str, Field(title="Shell output")]
 CommandLine = Annotated[str, Field(title="Command line")]
 CommandName = Annotated[str, Field(title="Command name")]
