@@ -14,6 +14,7 @@ from pathlib import Path
 from pydantic import BaseModel, ValidationError
 
 from ..models import RECORD_ADAPTER, Record
+from ..transcript import TRANSCRIPT_RECORD_ADAPTER, TranscriptRecord
 from ..types import SNAKE_CONFIG, ErrorText, FilePath, LineNumber
 
 
@@ -27,8 +28,13 @@ class ParseFailure(BaseModel):
 
 
 def parse_line(line: str) -> Record:
-    """Validate one transcript line into its record model (raises on mismatch)."""
+    """Validate one Claude Code transcript line (backward-compatible boundary)."""
     return RECORD_ADAPTER.validate_json(line)
+
+
+def parse_transcript_line(line: str) -> TranscriptRecord:
+    """Validate one Claude Code or Codex line through the shared provider union."""
+    return TRANSCRIPT_RECORD_ADAPTER.validate_json(line)
 
 
 def failure(file: str, line_number: int, exc: ValidationError, line: str) -> ParseFailure:
@@ -50,5 +56,18 @@ def iter_records(path: Path) -> Iterator[Record | ParseFailure]:
                 continue
             try:
                 yield RECORD_ADAPTER.validate_json(line)
+            except ValidationError as exc:
+                yield failure(path.name, n, exc, line)
+
+
+def iter_transcript_records(path: Path) -> Iterator[TranscriptRecord | ParseFailure]:
+    """Yield typed Claude Code or Codex records through the shared union."""
+    with path.open(encoding="utf-8", errors="replace") as fh:
+        for n, raw_line in enumerate(fh, start=1):
+            line = raw_line.strip()
+            if not line:
+                continue
+            try:
+                yield TRANSCRIPT_RECORD_ADAPTER.validate_json(line)
             except ValidationError as exc:
                 yield failure(path.name, n, exc, line)

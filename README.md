@@ -7,11 +7,31 @@
 [![Dependabot](https://img.shields.io/badge/Dependabot-enabled-brightgreen.svg)](https://github.com/Magic-Man-us/cc-session-core/blob/main/.github/dependabot.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://github.com/Magic-Man-us/cc-session-core/blob/main/LICENSE)
 
-Typed, lossless parser for Claude Code session transcripts (`~/.claude/projects/**/*.jsonl`), plus a session-analysis layer (timeline, tool-call pairing, cost) and a context-map tool built on it.
+Typed, lossless parser for both Claude Code transcripts
+(`~/.claude/projects/**/*.jsonl`) and Codex rollout transcripts
+(`$CODEX_HOME/sessions/**/*.jsonl`, normally `~/.codex/sessions`), plus a
+provider-neutral session-analysis layer (timeline, tool-call pairing, usage/cost)
+and a context-map tool built on it.
 
-Each transcript line is validated by a Pydantic `TypeAdapter` over a discriminated union keyed on the record `type`. Three layers, each a discriminated union: top-level records, `message.content` blocks, and attachments. `usage`, `message`, and the built-in tools' inputs/results are fully typed; `cc_session_core.parsing.tools` dispatches per-tool models by tool name, with a raw fallback for MCP/unknown tools.
+`TRANSCRIPT_RECORD_ADAPTER` is a shared Pydantic discriminated union. Its callable
+discriminator routes Claude record types (`assistant`, `user`, `system`, …) and
+Codex rollout types (`session_meta`, `turn_context`, `response_item`, `event_msg`,
+…) without a format flag. Each provider then has nested discriminated unions for
+its own content: Claude message blocks/attachments, and Codex response items/events.
+Provider-specific adapters remain available when a caller deliberately wants one
+format only.
 
-Parsing is **lossless**: models keep unknown fields (`extra="allow"`), and an unmodeled record/block/attachment `type` lands in an `Unknown*` carrier that still holds its payload — nothing is dropped or raised. The coverage gate is the **schema audit** (`cc_session_core.report.audit`), which reports anything that fell into `extra` or an `Unknown*` fallback (field names and value-types only, never values).
+Parsing is **lossless**: models keep unknown fields (`extra="allow"`), and an
+unmodeled record/block/attachment/event/response-item `type` lands in an
+`Unknown*` carrier that still holds its payload—nothing is silently dropped.
+This matters especially for Codex because its
+[hook documentation](https://learn.chatgpt.com/docs/config-file/hooks#common-input-fields)
+explicitly says the transcript format is not a stable interface. The typed
+Codex model tracks the current open-source
+[`RolloutItem`](https://github.com/openai/codex/blob/main/codex-rs/protocol/src/protocol.rs)
+and
+[`ResponseItem`](https://github.com/openai/codex/blob/main/codex-rs/protocol/src/models.rs)
+definitions while retaining forward-compatible fallbacks.
 
 ## Install
 
@@ -21,20 +41,28 @@ pip install -e .          # or: uv pip install -e .
 
 ## Library
 
-Parse lines into typed records:
+Parse either provider through one shared boundary:
 
 ```python
 from pathlib import Path
-from cc_session_core import iter_records, parse_line, ParseFailure
+from cc_session_core import (
+    ParseFailure,
+    iter_transcript_records,
+    parse_transcript_line,
+)
 
-rec = parse_line(line)                       # one JSON line -> typed record
+rec = parse_transcript_line(line)  # -> Claude Record | CodexRecord | unknown fallback
 
-for rec in iter_records(Path("session.jsonl")):
+for rec in iter_transcript_records(Path("session.jsonl")):
     if isinstance(rec, ParseFailure):
         ...                                  # file, line_number, error, raw
-    elif rec.type == "assistant":
-        rec.message.usage.input_tokens
+    else:
+        print(rec.type)
 ```
+
+The backward-compatible Claude-only `parse_line()` / `iter_records()` API and
+the explicit Codex-only `parse_codex_line()` / `iter_codex_records()` API are
+also available.
 
 Per-tool input/result resolution:
 
@@ -46,7 +74,8 @@ index = tool_name_index(records)                                # tool_use_id ->
 typed_result = parse_tool_result(result_tool_name(rec, index), rec.tool_use_result)
 ```
 
-Analyze a whole session:
+Analyze a whole session. `Session.load()` auto-detects the provider and returns
+the same normalized timeline/tool/cost views:
 
 ```python
 from cc_session_core import Session
@@ -58,6 +87,13 @@ s.cost_summary()      # token + cost rollup per model (one API request counted o
 s.label(); s.info()   # human title + one-line summary
 ```
 
+For Codex, response messages, reasoning, tool calls, tool outputs, compaction,
+and usage events are normalized into the canonical view. The original typed
+rollout remains available as `s.codex_records` when `isinstance(s, CodexSession)`.
+Codex `input_tokens` includes cached input, so normalization subtracts
+`cached_input_tokens` before filling the canonical uncached-input field; totals
+therefore do not double-count cache reads.
+
 Cost uses `cc_session_core.cost.pricing` (published list rates in `EXAMPLE_PRICING`); pass your own `PriceTable` for a different valuation. Rates are a usage valuation, not a billed amount.
 
 ## CLI
@@ -67,7 +103,11 @@ cc-session PATH [--tools] [--queries] [--audit] [--list] [--json] [--strict]
 cc-session PATH --export <text|markdown|json|jsonl> [--select k=v ...] [-o OUT]
 ```
 
-`PATH` is a `.jsonl` file or a project directory (directories load recursively). `--tools` lists paired tool calls; `--queries` prints the full why/queried/returned timeline; `--list` indexes the sessions in a directory; `--audit` reports schema coverage over the target (field names + value-types only, safe to share).
+`PATH` is a Claude or Codex `.jsonl` file, or a directory (directories load
+recursively). `--tools` lists paired tool calls; `--queries` prints the full
+why/queried/returned timeline; `--list` indexes sessions in a directory;
+`--audit` reports Claude schema coverage over the target (field names +
+value-types only, safe to share).
 
 `--export` writes a filtered slice of the session; `--select` narrows it (space-separated `key=comma,values`): `parts=` (`text,thinking,tool_use,tool_result,image,other`), `tools=`, `types=`, `uuids=`, `main_only=true`. `-o` writes to a file instead of stdout.
 
@@ -79,7 +119,10 @@ Aggregates per transcript and overall: turns (main vs sidechain), tool usage, to
 
 ## MCP server
 
-`cc-session-mcp` (stdio) exposes `list_sessions`, `session_summary`, `tool_calls`, `export_session`, and `audit`. It needs the `mcp` extra (`pip install "cc-session-core[mcp]"`). Register in a Claude Code `.mcp.json`:
+`cc-session-mcp` (stdio) exposes `list_sessions`, `session_summary`,
+`tool_calls`, `export_session`, and `audit`. Session listing and lookup search
+both default Claude and Codex roots. It needs the `mcp` extra
+(`pip install "cc-session-core[mcp]"`). Register in a Claude Code `.mcp.json`:
 
 ```json
 {

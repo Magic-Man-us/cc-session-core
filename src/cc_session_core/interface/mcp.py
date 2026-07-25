@@ -1,8 +1,8 @@
 """Local MCP server exposing cc_session_core over the Model Context Protocol.
 
 A thin, read-only adapter: each tool wraps an existing cc_session_core function so an MCP
-client (Claude Code, etc.) can list, summarize, and *selectively export* Claude
-Code sessions without shelling out. Outputs are bounded — ``export_session``
+client can list, summarize, and *selectively export* Claude Code and Codex
+sessions without shelling out. Outputs are bounded — ``export_session``
 truncates and leans on the ``ExportSpec`` filters — so a tool call can't blow the
 caller's context with a whole transcript.
 
@@ -23,7 +23,13 @@ from ..report.audit import SchemaAudit, audit_files
 from ..report.export import ExportFormat, ExportSpec, render
 from ..report.investigation import build_investigation, render_investigation_markdown
 from ..report.views import CostSummary, SessionInfo, ToolCall
-from ..session import DEFAULT_PROJECTS_ROOT, Session, resolve_session_file, session_files
+from ..session import (
+    DEFAULT_PROJECTS_ROOT,
+    Session,
+    default_session_files,
+    resolve_session_file,
+    session_files,
+)
 
 server = FastMCP("cc-session")
 _MAX_CHARS = 20_000
@@ -37,7 +43,7 @@ class SessionSummary(SnakeModel):
 
 
 def _resolve(session: str) -> Path:
-    """A .jsonl path as-is, or a session id/prefix under ~/.claude/projects."""
+    """A .jsonl path as-is, or a Claude/Codex session id or prefix."""
     path = resolve_session_file(session)
     if path is None:
         raise ValueError(f"no session file found for {session!r}")
@@ -46,10 +52,8 @@ def _resolve(session: str) -> Path:
 
 @server.tool()
 def list_sessions(limit: int = 20) -> list[SessionInfo]:
-    """List the most-recently-modified Claude Code sessions (id, title, cost, tool calls)."""
-    files = sorted(
-        session_files(DEFAULT_PROJECTS_ROOT), key=lambda p: p.stat().st_mtime, reverse=True
-    )
+    """List the most-recently-modified Claude Code and Codex sessions."""
+    files = sorted(default_session_files(), key=lambda p: p.stat().st_mtime, reverse=True)
     return [Session.load(f).info() for f in files[:limit]]
 
 

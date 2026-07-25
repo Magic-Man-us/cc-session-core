@@ -168,6 +168,10 @@ class Usage(SnakeModel):
     service_tier: t.ServiceTier | None = None
     speed: t.Speed | None = None
     inference_geo: t.InferenceGeo | None = None
+    # Codex exposes these separately in rollout usage events.  They default to
+    # zero/None so the canonical view remains backward-compatible for Claude.
+    reasoning_output_tokens: t.TokenCount = 0
+    total_tokens: t.TokenCount | None = None
 
 
 # ======================================================================
@@ -797,6 +801,7 @@ _RECORD_TAGS = frozenset(
         "agent-setting",
     }
 )
+CLAUDE_RECORD_TYPES = _RECORD_TAGS
 
 Record = Annotated[
     Annotated[_KnownRecord, Tag("known")] | Annotated[UnknownRecord, Tag("unknown")],
