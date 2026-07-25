@@ -232,6 +232,7 @@ def _report(target: str, maps: list[SessionMap], totals: Totals) -> None:
 
 
 def _write_artifacts(out_dir: Path, maps: list[SessionMap]) -> None:
+    out_dir.mkdir(parents=True, exist_ok=True)
     (out_dir / "map.json").write_bytes(_MAPS_ADAPTER.dump_json(maps, indent=2))
     cols = [name for name in SessionMap.model_fields if name not in ("models", "tools")]
     with (out_dir / "map.csv").open("w", newline="", encoding="utf-8") as fh:
