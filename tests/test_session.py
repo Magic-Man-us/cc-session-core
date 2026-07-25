@@ -182,7 +182,7 @@ def test_timeline_populates_raw_for_a_non_conversation_record(tmp_path: Path) ->
         attachment={"type": "auto_mode"},
     )
     path = tmp_path / "session.jsonl"
-    path.write_text("\n".join([USER_PROMPT, attachment_line]) + "\n", encoding="utf-8")
+    path.write_text(f"{USER_PROMPT}\n{attachment_line}\n", encoding="utf-8")
 
     session = Session.load(path)
     entries = {e.uuid: e for e in session.timeline()}

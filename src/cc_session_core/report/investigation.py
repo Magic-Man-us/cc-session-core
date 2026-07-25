@@ -10,6 +10,7 @@ from the turn that fired it (:attr:`ToolCall.reason`, built by
 
 from __future__ import annotations
 
+from pydantic import Field
 from pydantic_core import to_json
 
 from .. import types as t
@@ -34,11 +35,11 @@ class InvestigationReport(SnakeModel):
 
     info: SessionInfo
     cost_summary: CostSummary
-    tool_stats: list[ToolCallStat] = []
-    tool_calls: list[ToolCall] = []
-    errors: list[ToolCall] = []
-    parse_errors: list[str] = []
-    timeline: list[TimelineEntry] = []
+    tool_stats: list[ToolCallStat] = Field(default_factory=list[ToolCallStat])
+    tool_calls: list[ToolCall] = Field(default_factory=list[ToolCall])
+    errors: list[ToolCall] = Field(default_factory=list[ToolCall])
+    parse_errors: list[str] = Field(default_factory=list[str])
+    timeline: list[TimelineEntry] = Field(default_factory=list[TimelineEntry])
 
 
 def build_investigation(

@@ -55,7 +55,7 @@ rec = parse_transcript_line(line)  # -> Claude Record | CodexRecord | unknown fa
 
 for rec in iter_transcript_records(Path("session.jsonl")):
     if isinstance(rec, ParseFailure):
-        ...                                  # file, line_number, error, raw
+        ...  # file, line_number, error, raw
     else:
         print(rec.type)
 ```
@@ -69,8 +69,8 @@ Per-tool input/result resolution:
 ```python
 from cc_session_core import parse_tool_input, parse_tool_result, tool_name_index, result_tool_name
 
-typed_input = parse_tool_input(block.name, block.input)         # model, or raw value
-index = tool_name_index(records)                                # tool_use_id -> tool name
+typed_input = parse_tool_input(block.name, block.input)  # model, or raw value
+index = tool_name_index(records)  # tool_use_id -> tool name
 typed_result = parse_tool_result(result_tool_name(rec, index), rec.tool_use_result)
 ```
 
@@ -81,10 +81,11 @@ the same normalized timeline/tool/cost views:
 from cc_session_core import Session
 
 s = Session.load("session.jsonl")
-s.timeline()          # ordered, decomposed events (text / thinking / tool_use / tool_result / ...)
-s.tool_calls()        # every tool_use paired with its tool_result, plus the assistant's "why"
-s.cost_summary()      # token + cost rollup per model (one API request counted once)
-s.label(); s.info()   # human title + one-line summary
+s.timeline()  # ordered, decomposed events (text / thinking / tool_use / tool_result / ...)
+s.tool_calls()  # every tool_use paired with its tool_result, plus the assistant's "why"
+s.cost_summary()  # token + cost rollup per model (one API request counted once)
+s.label()
+s.info()  # human title + one-line summary
 ```
 
 For Codex, response messages, reasoning, tool calls, tool outputs, compaction,

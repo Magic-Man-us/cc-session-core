@@ -218,7 +218,7 @@ class TimelineEntry(SnakeModel):
     cost_usd: t.CostUsd | None = None
     cost_source: t.CostSource | None = None
     summary: t.ContentText | None = None
-    parts: list[TimelinePart] = []
+    parts: list[TimelinePart] = Field(default_factory=list[TimelinePart])
     raw: JsonValue | None = None
 
 
@@ -279,7 +279,7 @@ class CostSummary(SnakeModel):
     cache_creation_input_tokens: t.TokenCount = 0
     cache_read_input_tokens: t.TokenCount = 0
     total_cost_usd: t.CostUsd | None = None
-    by_model: list[ModelUsage] = []
+    by_model: list[ModelUsage] = Field(default_factory=list[ModelUsage])
 
     @computed_field
     @property

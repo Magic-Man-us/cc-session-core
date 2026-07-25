@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """Context map over Claude Code transcripts, built on the typed cc_session_core layer.
 
 Every figure here comes from a validated field on a typed record — no dict
