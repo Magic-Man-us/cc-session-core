@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """Freeze representative, scrubbed fixtures from a real transcript corpus.
 
 One example per record kind, per attachment kind, and per modeled tool
@@ -19,16 +18,16 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT / "src"))
 
-from pydantic import BaseModel, JsonValue, TypeAdapter, ValidationError  # noqa: E402
-from pydantic_core import to_json  # noqa: E402
+from pydantic import BaseModel, JsonValue, TypeAdapter, ValidationError
+from pydantic_core import to_json
 
-from cc_session_core import (  # noqa: E402
+from cc_session_core import (
     ParseFailure,
     iter_records,
     parse_tool_input,
     parse_tool_result,
 )
-from cc_session_core.models import AssistantRecord, ToolUseBlock  # noqa: E402
+from cc_session_core.models import AssistantRecord, ToolUseBlock
 
 FIX = Path(__file__).parent / "fixtures"
 

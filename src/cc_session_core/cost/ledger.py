@@ -10,7 +10,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from pydantic import computed_field
+from pydantic import Field, computed_field
 
 from .. import types as t
 from ..models import SnakeModel
@@ -54,9 +54,9 @@ class ProjectLedger(SnakeModel):
     ``sum(by_day cost) <= total_cost_usd``."""
 
     root: t.DisplayPath = ""
-    rows: list[LedgerRow] = []
-    by_day: list[DayCost] = []
-    by_model: list[ModelCost] = []
+    rows: list[LedgerRow] = Field(default_factory=list[LedgerRow])
+    by_day: list[DayCost] = Field(default_factory=list[DayCost])
+    by_model: list[ModelCost] = Field(default_factory=list[ModelCost])
 
     @computed_field
     @property
