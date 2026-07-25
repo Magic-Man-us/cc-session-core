@@ -5,7 +5,7 @@ build-backend = "hatchling.build"
 [project]
 name = "cc-session-core"
 version = "0.1.0"
-description = "Typed, exhaustive parser for Claude Code session transcripts (.jsonl), plus a context-map tool."
+description = "Typed, lossless parser for Claude Code and Codex session transcripts (.jsonl)."
 readme = "README.md"
 license = "MIT"
 license-files = ["LICENSE"]

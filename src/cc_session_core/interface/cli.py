@@ -68,7 +68,7 @@ def _print_session(session: Session, args: argparse.Namespace) -> None:
         return
 
     if session.source:
-        print(f"# {session.source}  ({len(session.records)} records)")
+        print(f"# {session.source}  ({session.record_count()} records)")
     if session.errors:
         print(f"# {len(session.errors)} unparsed line(s):")
         for err in session.errors:
@@ -97,7 +97,7 @@ def _print_session(session: Session, args: argparse.Namespace) -> None:
 
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(
-        description="Parse Claude Code session .jsonl logs into a clean timeline."
+        description="Parse Claude Code or Codex session .jsonl logs into a clean timeline."
     )
     parser.add_argument("path", help="a .jsonl session file, or a project directory")
     parser.add_argument("--json", action="store_true", help="emit structured JSON")

@@ -8,6 +8,7 @@ from conftest import record_lines
 from pydantic import BaseModel
 
 from cc_session_core import ParseFailure, tail_records
+from cc_session_core.codex.models import SessionMetaRecord
 
 LINES = record_lines()
 
@@ -82,3 +83,18 @@ def test_bad_line_yields_parse_failure_with_line_number(tmp_path: Path) -> None:
     assert isinstance(bad, ParseFailure)
     assert bad.line_number == 3
     assert bad.file == "s.jsonl"
+
+
+def test_tail_uses_the_shared_union_for_codex_rollouts(tmp_path: Path) -> None:
+    path = tmp_path / "rollout.jsonl"
+    line = (
+        (Path(__file__).parent / "fixtures" / "codex_rollout.jsonl")
+        .read_text(encoding="utf-8")
+        .splitlines()[0]
+    )
+    write(path, line + "\n")
+
+    batch = tail_records(path)
+
+    assert len(batch.records) == 1
+    assert isinstance(batch.records[0].record, SessionMetaRecord)

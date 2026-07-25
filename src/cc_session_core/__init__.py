@@ -1,4 +1,4 @@
-"""Typed, lossless parser and analysis layer for Claude Code session transcripts.
+"""Typed, lossless parser and analysis layer for Claude Code and Codex transcripts.
 
 Besides this package-level surface, the ``models``, ``report.views``, and ``types``
 modules are stable import targets for the full record/block/view vocabulary.
@@ -6,6 +6,9 @@ modules are stable import targets for the full record/block/view vocabulary.
 
 from __future__ import annotations
 
+from .codex.models import CODEX_RECORD_ADAPTER, CodexRecord
+from .codex.parse import iter_codex_records, parse_codex_line
+from .codex.session import CodexSession
 from .cost.ledger import DayCost, LedgerRow, ModelCost, ProjectLedger, build_ledger
 from .cost.pricing import (
     EXAMPLE_PRICING,
@@ -34,7 +37,13 @@ from .models import (
     Usage,
     UserRecord,
 )
-from .parsing.parse import ParseFailure, iter_records, parse_line
+from .parsing.parse import (
+    ParseFailure,
+    iter_records,
+    iter_transcript_records,
+    parse_line,
+    parse_transcript_line,
+)
 from .parsing.tail import TailBatch, TailRecord, tail_records
 from .parsing.tools import (
     MODELED_INPUT_TOOLS,
@@ -75,16 +84,29 @@ from .report.views import (
     tool_result_text,
 )
 from .session import (
+    DEFAULT_CODEX_ARCHIVED_SESSIONS_ROOT,
+    DEFAULT_CODEX_HOME,
+    DEFAULT_CODEX_SESSIONS_ROOT,
     DEFAULT_PROJECTS_ROOT,
     Session,
+    default_session_files,
     iter_raw,
     load_project,
     request_key,
     resolve_session_file,
     session_files,
 )
+from .transcript import (
+    TRANSCRIPT_RECORD_ADAPTER,
+    TranscriptRecord,
+    UnknownTranscriptRecord,
+)
 
 __all__ = [
+    "CODEX_RECORD_ADAPTER",
+    "DEFAULT_CODEX_ARCHIVED_SESSIONS_ROOT",
+    "DEFAULT_CODEX_HOME",
+    "DEFAULT_CODEX_SESSIONS_ROOT",
     "DEFAULT_PROJECTS_ROOT",
     "EXAMPLE_PRICING",
     "FAMILY_PRICING",
@@ -93,9 +115,12 @@ __all__ = [
     "RECORD_ADAPTER",
     "TOOL_INPUT_ADAPTERS",
     "TOOL_RESULT_ADAPTERS",
+    "TRANSCRIPT_RECORD_ADAPTER",
     "AssistantRecord",
     "Attachment",
     "CacheCreation",
+    "CodexRecord",
+    "CodexSession",
     "ContentBlock",
     "CostBreakdown",
     "CostSummary",
@@ -126,6 +151,8 @@ __all__ = [
     "ToolResultPart",
     "ToolUseBlock",
     "ToolUsePart",
+    "TranscriptRecord",
+    "UnknownTranscriptRecord",
     "Usage",
     "UserRecord",
     "audit_files",
@@ -133,6 +160,7 @@ __all__ = [
     "build_ledger",
     "cost_breakdown_for",
     "cost_for",
+    "default_session_files",
     "export",
     "family_of",
     "format_audit",
@@ -140,13 +168,17 @@ __all__ = [
     "format_queries",
     "format_session_list",
     "format_timeline",
+    "iter_codex_records",
     "iter_raw",
     "iter_records",
+    "iter_transcript_records",
     "load_project",
     "message_text",
+    "parse_codex_line",
     "parse_line",
     "parse_tool_input",
     "parse_tool_result",
+    "parse_transcript_line",
     "price_for_family",
     "price_for_model",
     "price_for_usage",

@@ -15,7 +15,7 @@ from pathlib import Path
 
 from pydantic import BaseModel, ValidationError
 
-from ..models import RECORD_ADAPTER, Record
+from ..transcript import TRANSCRIPT_RECORD_ADAPTER, TranscriptRecord
 from ..types import SNAKE_CONFIG, ByteOffset, LineNumber
 from .parse import ParseFailure, failure
 
@@ -26,7 +26,7 @@ class TailRecord(BaseModel):
     model_config = SNAKE_CONFIG
 
     line: LineNumber
-    record: Record | ParseFailure
+    record: TranscriptRecord | ParseFailure
 
 
 class TailBatch(BaseModel):
@@ -73,7 +73,9 @@ def tail_records(path: Path, offset: int = 0, line: int = 0) -> TailBatch:
         if not text:
             continue
         try:
-            records.append(TailRecord(line=line, record=RECORD_ADAPTER.validate_json(text)))
+            records.append(
+                TailRecord(line=line, record=TRANSCRIPT_RECORD_ADAPTER.validate_json(text))
+            )
         except ValidationError as exc:
             records.append(TailRecord(line=line, record=failure(path.name, line, exc, text)))
     return TailBatch(records=records, offset=offset + len(complete), line=line, restarted=restarted)

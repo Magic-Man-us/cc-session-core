@@ -14,9 +14,11 @@ request id, so a repeated line and a re-counted API request are each counted onc
 
 from __future__ import annotations
 
+import os
 from collections.abc import Iterator
 from functools import cached_property
 from pathlib import Path
+from typing import ClassVar
 
 from pydantic import JsonValue, TypeAdapter, ValidationError
 from pydantic_core import to_json
@@ -40,7 +42,7 @@ from .models import (
     ToolUseBlock,
     UserRecord,
 )
-from .parsing.parse import ParseFailure, iter_records
+from .parsing.parse import ParseFailure, iter_records, iter_transcript_records
 from .parsing.tools import parse_tool_input, parse_tool_result
 from .report.views import (
     CostSummary,
@@ -98,6 +100,8 @@ def _record_uuid(rec: Record) -> t.RecordUuid | None:
 class Session:
     """A parsed session: ordered, de-duplicated records plus derived views."""
 
+    provider: ClassVar[str] = "claude"
+
     def __init__(
         self,
         records: list[Record],
@@ -112,8 +116,26 @@ class Session:
 
     @classmethod
     def load(cls, path: str | Path, strict: bool = False) -> Session:
-        """Parse one .jsonl file. strict=True raises on a bad line; else it is collected."""
+        """Parse one Claude Code or Codex .jsonl file, auto-detected by the shared union."""
         path = Path(path)
+        from .transcript import UnknownTranscriptRecord
+
+        first = next(
+            (
+                item
+                for item in iter_transcript_records(path)
+                if not isinstance(item, (ParseFailure, UnknownTranscriptRecord))
+            ),
+            None,
+        )
+        if first is not None:
+            from .codex.models import RolloutBase
+
+            if isinstance(first, RolloutBase):
+                from .codex.session import CodexSession
+
+                return CodexSession.load(path, strict=strict)
+
         records: list[Record] = []
         errors: list[str] = []
         for item in iter_records(path):
@@ -468,10 +490,14 @@ class Session:
             title=self.label(),
             started=min(stamps, key=sort_key) if stamps else None,
             ended=max(stamps, key=sort_key) if stamps else None,
-            records=len(self.records),
+            records=self.record_count(),
             tool_calls=len(self.tool_calls()),
             total_cost_usd=self.cost_summary().total_cost_usd,
         )
+
+    def record_count(self) -> int:
+        """Number of source records represented by this session."""
+        return len(self.records)
 
 
 # --------------------------------------------------------------------------- #
@@ -479,6 +505,11 @@ class Session:
 # --------------------------------------------------------------------------- #
 DEFAULT_PROJECTS_ROOT = Path.home() / ".claude" / "projects"
 """Where Claude Code writes session transcripts, one directory per project."""
+
+DEFAULT_CODEX_HOME = Path(os.environ.get("CODEX_HOME", Path.home() / ".codex"))
+DEFAULT_CODEX_SESSIONS_ROOT = DEFAULT_CODEX_HOME / "sessions"
+DEFAULT_CODEX_ARCHIVED_SESSIONS_ROOT = DEFAULT_CODEX_HOME / "archived_sessions"
+"""Where Codex writes active and archived rollout transcripts."""
 
 
 def session_files(target: str | Path) -> list[Path]:
@@ -488,13 +519,34 @@ def session_files(target: str | Path) -> list[Path]:
     return sorted(path.rglob("*.jsonl")) if path.is_dir() else [path]
 
 
+def default_session_files(include_archived: bool = False) -> list[Path]:
+    """Discover Claude Code and Codex transcripts in their standard state roots."""
+    roots = [DEFAULT_PROJECTS_ROOT, DEFAULT_CODEX_SESSIONS_ROOT]
+    if include_archived:
+        roots.append(DEFAULT_CODEX_ARCHIVED_SESSIONS_ROOT)
+    files = {path for root in roots if root.is_dir() for path in root.rglob("*.jsonl")}
+    return sorted(files)
+
+
 def resolve_session_file(session: str, projects_root: Path = DEFAULT_PROJECTS_ROOT) -> Path | None:
-    """A ``.jsonl`` path as-is, or the first session file whose name matches an
-    id/prefix under ``projects_root``; ``None`` when nothing matches."""
+    """Resolve a path or id/prefix across Claude, active Codex, and archived Codex."""
     path = Path(session).expanduser()
     if path.is_file():
         return path
-    matches = sorted(projects_root.rglob(f"{session}*.jsonl"))
+    roots = (
+        projects_root,
+        DEFAULT_CODEX_SESSIONS_ROOT,
+        DEFAULT_CODEX_ARCHIVED_SESSIONS_ROOT,
+    )
+    matches = sorted(
+        {
+            match
+            for root in roots
+            if root.is_dir()
+            for pattern in (f"{session}*.jsonl", f"*{session}*.jsonl")
+            for match in root.rglob(pattern)
+        }
+    )
     return matches[0] if matches else None
 
 
